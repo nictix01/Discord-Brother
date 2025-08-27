@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #36393f;
+            color: #dcddde;
+            overflow-x: hidden;
+        }
+
+        /* Navigation latérale */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 240px;
+            background-color: #2f3136;
+            padding: 20px 0;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #40444b;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #40444b;
+        }
+
+        .nav-item.active {
+            background-color: #5865f2;
+            border-left-color: #ffffff;
+        }
+
+        .nav-item svg {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            margin-left: 240px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: #40444b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h2 {
+            color: #ffffff;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #b9bbbe;
+            font-size: 14px;
+        }
+
+        /* Cartes statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: #2f3136;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #5865f2;
+        }
+
+        .stat-card h3 {
+            color: #b9bbbe;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-value {
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* Tableaux */
+        .data-table {
+            background-color: #2f3136;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-header {
+            background-color: #40444b;
+            padding: 15px 20px;
+            border-bottom: 1px solid #4f545c;
+        }
+
+        .table-header h3 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-content {
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 20px;
+            text-align: left;
+            border-bottom: 1px solid #4f545c;
+        }
+
+        th {
+            background-color: #40444b;
+            color: #ffffff;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            color: #dcddde;
+        }
+
+        tr:hover {
+            background-color: #40444b;
+        }
+
+        /* Messages */
+        .message-item {
+            background-color: #40444b;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #5865f2;
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-author {
+            font-weight: 600;
+            color: #ffffff;
+            margin-right: 10px;
+        }
+
+        .message-date {
+            color: #b9bbbe;
+            font-size: 12px;
+        }
+
+        .message-content {
+            color: #dcddde;
+            line-height: 1.4;
+        }
+
+        /* Filtres */
+        .filters {
+            background-color: #2f3136;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            color: #b9bbbe;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        select, input {
+            background-color: #40444b;
+            border: 1px solid #4f545c;
+            color: #dcddde;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #5865f2;
+        }
+
+        /* Boutons */
+        .btn {
+            background-color: #5865f2;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #4752c4;
+        }
+
+        .btn-secondary {
+            background-color: #4f545c;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5d6269;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #b9bbbe;
+        }
+
+        .spinner {
+            border: 3px solid #4f545c;
+            border-top: 3px solid #5865f2;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Badges Discord */
+        .discord-badge {
+            background-color: #5865f2;
+            color: #ffffff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .online-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #3ba55d;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .channel-mention {
+            background-color: rgba(88, 101, 242, 0.3);
+            color: #00aff4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .error-message {
+            background-color: #f04747;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>BIG BROTHER</h1>
+        </div>
+        
+        <div class="nav-item active" data-section="overview">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13 9V3h8v6h-8zM3 13V3h8v10H3zm18 8V11h8v10h-8zM3 21v-6h8v6H3z"/>
+            </svg>
+            Vue d'ensemble
+        </div>
+        
+        <div class="nav-item" data-section="servers">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+            Serveurs
+        </div>
+        
+        <div class="nav-item" data-section="channels">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 18h2v2H7v-2zm0-4h2v2H7v-2zm0-4h2v2H7v-2zm4 8h10v2H11v-2zm0-4h10v2H11v-2zm0-4h10v2H11v-2z"/>
+            </svg>
+            Salons
+        </div>
+        
+        <div class="nav-item" data-section="messages">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4v3c0 .6.4 1 1 1 .2 0 .5-.1.7-.3L14.6 18H20c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            </svg>
+            Messages
+        </div>
+        
+        <div class="nav-item" data-section="users">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 7c0-2.21-1.79-4-4-4S8 4.79 8 7s1.79 4 4 4 4-1.79 4-4zM12 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            Utilisateurs
+        </div>
+        
+        <div class="nav-item" data-section="reactions">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM8.5 8C7.67 8 7 8.67 7 9.5S7.67 11 8.5 11 10 10.33 10 9.5 9.33 8 8.5 8zM12 18c-2.28 0-4.22-1.66-5-4h10c-.78 2.34-2.72 4-5 4zm3.5-7c-.83 0-1.5-.67-1.5-1.5S14.67 8 15.5 8 17 8.67 17 9.5 16.33 11 15.5 11z"/>
+            </svg>
+            Réactions
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="main-content">
+        <!-- Section Vue d'ensemble -->
+        <div id="overview-section" class="section active">
+            <div class="header">
+                <h2>Vue d'ensemble</h2>
+                <p>Tableau de bord principal avec les statistiques générales</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Messages</h3>
+                    <div class="stat-value" id="total-messages">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Utilisateurs Actifs</h3>
+                    <div class="stat-value" id="total-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Serveurs</h3>
+                    <div class="stat-value" id="total-servers">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Salons</h3>
+                    <div class="stat-value" id="total-channels">-</div>
+                </div>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Activité Récente</h3>
+                </div>
+                <div class="table-content">
+                    <div id="recent-activity" class="loading">
+                        <div class="spinner"></div>
+                        Chargement de l'activité récente...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Messages -->
+        <div id="messages-section" class="section">
+            <div class="header">
+                <h2>Messages</h2>
+                <p>Tous les messages enregistrés dans la base de données</p>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Serveur</label>
+                    <select id="message-server-filter">
+                        <option value="">Tous les serveurs</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Salon</label>
+                    <select id="message-channel-filter">
+                        <option value="">Tous les salons</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Utilisateur</label>
+                    <select id="message-user-filter">
+                        <option value="">Tous les utilisateurs</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="applyMessageFilters()">Filtrer</button>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Messages</h3>
+                </div>
+                <div class="table-content">
+                    <div id="messages-list" class="loading">
+                        <div class="spinner"></div>
+                        Chargement des messages...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Utilisateurs -->
+        <div id="users-section" class="section">
+            <div class="header">
+                <h2>Utilisateurs</h2>
+                <p>Liste de tous les utilisateurs enregistrés</p>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Utilisateurs</h3>
+                </div>
+                <div class="table-content">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom d'utilisateur</th>
+                                <th>Nom d'affichage</th>
+                                <th>Bot</th>
+                                <th>Première vue</th>
+                                <th>Messages</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr>
+                                <td colspan="6" class="loading">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Serveurs -->
+        <div id="servers-section" class="section">
+            <div class="header">
+                <h2>Serveurs</h2>
+                <p>Liste des serveurs Discord</p>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Serveurs</h3>
+                </div>
+                <div class="table-content">
+                    <div id="servers-list" class="loading">
+                        <div class="spinner"></div>
+                        Chargement des serveurs...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Salons -->
+        <div id="channels-section" class="section">
+            <div class="header">
+                <h2>Salons</h2>
+                <p>Liste des salons Discord</p>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Salons</h3>
+                </div>
+                <div class="table-content">
+                    <div id="channels-list" class="loading">
+                        <div class="spinner"></div>
+                        Chargement des salons...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Réactions -->
+        <div id="reactions-section" class="section">
+            <div class="header">
+                <h2>Réactions</h2>
+                <p>Toutes les réactions aux messages</p>
+            </div>
+            
+            <div class="data-table">
+                <div class="table-header">
+                    <h3>Réactions</h3>
+                </div>
+                <div class="table-content">
+                    <div id="reactions-list" class="loading">
+                        <div class="spinner"></div>
+                        Chargement des réactions...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'api.php';
+        
+        // Variables globales
+        let isApiAvailable = false;
+
+        // Fonction pour faire des requêtes API
+        async function apiRequest(action, params = {}) {
+            try {
+                const url = new URL(API_URL, window.location.origin);
+                url.searchParams.append('action', action);
+                
+                Object.keys(params).forEach(key => {
+                    if (params[key] !== null && params[key] !== undefined) {
+                        url.searchParams.append(key, params[key]);
+                    }
+                });
+
+                console.log('Requête API:', url.toString());
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Erreur API:', error);
+                showError(`Erreur API: ${error.message}`);
+                return null;
+            }
+        }
+
+        // Fonction pour afficher les erreurs
+        function showError(message) {
+            console.error(message);
+            
+            // Créer une notification d'erreur
+            let errorDiv = document.getElementById('error-notification');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'error-notification';
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background-color: #f04747;
+                    color: white;
+                    padding: 15px;
+                    border-radius: 5px;
+                    z-index: 10000;
+                    max-width: 400px;
+                `;
+                document.body.appendChild(errorDiv);
+            }
+            
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        // Navigation entre sections
+        function showSection(sectionName) {
+            console.log('Affichage section:', sectionName);
+            
+            // Masquer toutes les sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Désactiver tous les nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Afficher la section demandée
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Activer le nav item correspondant
+            const targetNavItem = document.querySelector(`[data-section="${sectionName}"]`);
+            if (targetNavItem) {
+                targetNavItem.classList.add('active');
+            }
+
+            // Charger les données de la section
+            loadSectionData(sectionName);
+        }
+
+        // Chargement des données par section
+        function loadSectionData(sectionName) {
+            console.log('Chargement données section:', sectionName);
+            
+            switch (sectionName) {
+                case 'overview':
+                    loadOverviewData();
+                    break;
+                case 'messages':
+                    loadMessages();
+                    break;
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'servers':
+                    loadServers();
+                    break;
+                case 'channels':
+                    loadChannels();
+                    break;
+                case 'reactions':
+                    loadReactions();
+                    break;
+                default:
+                    console.log('Section non implémentée:', sectionName);
+            }
+        }
+
+        // Chargement des données d'aperçu
+        async function loadOverviewData() {
+            console.log('Chargement overview...');
+            
+            if (!isApiAvailable) {
+                // Données de démonstration
+                document.getElementById('total-messages').textContent = '1,234';
+                document.getElementById('total-users').textContent = '56';
+                document.getElementById('total-servers').textContent = '3';
+                document.getElementById('total-channels').textContent = '15';
+                
+                document.getElementById('recent-activity').innerHTML = `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-author">Utilisateur Demo</span>
+                            <span class="channel-mention">#général</span>
+                            <span class="message-date">${new Date().toLocaleString()}</span>
+                        </div>
+                        <div class="message-content">Message de démonstration du dashboard</div>
+                    </div>
+                    <div class="error-message">
+                        ⚠️ Mode démonstration - Créez le fichier api.php pour voir les vraies données
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('stats');
+                if (data) {
+                    document.getElementById('total-messages').textContent = data.total_messages?.toLocaleString() || '0';
+                    document.getElementById('total-users').textContent = data.total_users?.toLocaleString() || '0';
+                    document.getElementById('total-servers').textContent = data.total_servers?.toLocaleString() || '0';
+                    document.getElementById('total-channels').textContent = data.total_channels?.toLocaleString() || '0';
+                }
+                
+                const activityData = await apiRequest('recent_activity', { limit: 10 });
+                if (activityData && activityData.activity) {
+                    let activityHtml = '';
+                    activityData.activity.forEach(item => {
+                        const date = new Date(item.created_at);
+                        activityHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span class="message-author">${item.display_name || item.username}</span>
+                                    <span class="channel-mention">#${item.channel_name || 'inconnu'}</span>
+                                    <span class="message-date">${date.toLocaleString()}</span>
+                                </div>
+                                <div class="message-content">${item.content}</div>
+                            </div>
+                        `;
+                    });
+                    document.getElementById('recent-activity').innerHTML = activityHtml;
+                }
+            } catch (error) {
+                console.error('Erreur chargement overview:', error);
+            }
+        }
+
+        // Chargement des messages
+        async function loadMessages() {
+            console.log('Chargement messages...');
+            
+            const messagesDiv = document.getElementById('messages-list');
+            
+            if (!isApiAvailable) {
+                messagesDiv.innerHTML = `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-author">Demo User</span>
+                            <span class="channel-mention">#général</span>
+                            <span class="message-date">${new Date().toLocaleString()}</span>
+                        </div>
+                        <div class="message-content">Ceci est un message de démonstration</div>
+                    </div>
+                    <div class="error-message">
+                        Mode démonstration - Connectez votre base de données pour voir les vrais messages
+                    </div>
+                `;
+                return;
+            }
+            
+            messagesDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des messages...</div>';
+            
+            try {
+                const data = await apiRequest('messages', { limit: 50 });
+                if (data && data.messages) {
+                    let messagesHtml = '';
+                    data.messages.forEach(msg => {
+                        const date = new Date(msg.created_at);
+                        messagesHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span class="message-author">${msg.display_name || msg.username}</span>
+                                    <span class="channel-mention">#${msg.channel_name || 'inconnu'}</span>
+                                    <span class="message-date">${date.toLocaleString()}</span>
+                                </div>
+                                <div class="message-content">${msg.content || '<em>Message vide</em>'}</div>
+                            </div>
+                        `;
+                    });
+                    messagesDiv.innerHTML = messagesHtml || '<p>Aucun message trouvé</p>';
+                }
+            } catch (error) {
+                messagesDiv.innerHTML = '<div class="error-message">Erreur lors du chargement des messages</div>';
+            }
+        }
+
+        // Chargement des utilisateurs
+        async function loadUsers() {
+            console.log('Chargement users...');
+            
+            const tbody = document.getElementById('users-table-body');
+            
+            if (!isApiAvailable) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td>123456</td>
+                        <td><span class="online-indicator"></span>DemoUser</td>
+                        <td>Demo User</td>
+                        <td>Non</td>
+                        <td>${new Date().toLocaleDateString()}</td>
+                        <td>42</td>
+                    </tr>
+                    <tr>
+                        <td colspan="6" class="error-message">Mode démonstration - Connectez votre API pour voir les vrais utilisateurs</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">Chargement...</td></tr>';
+            
+            try {
+                const data = await apiRequest('users', { limit: 100 });
+                if (data && data.users) {
+                    let usersHtml = '';
+                    data.users.forEach(user => {
+                        const firstSeen = new Date(user.first_seen);
+                        usersHtml += `
+                            <tr>
+                                <td>${user.user_id}</td>
+                                <td>
+                                    ${user.bot ? '<span class="discord-badge">BOT</span>' : '<span class="online-indicator"></span>'}
+                                    ${user.username}
+                                </td>
+                                <td>${user.display_name || user.username}</td>
+                                <td>${user.bot ? 'Oui' : 'Non'}</td>
+                                <td>${firstSeen.toLocaleDateString()}</td>
+                                <td>${user.message_count || 0}</td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = usersHtml || '<tr><td colspan="6">Aucun utilisateur trouvé</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="error-message">Erreur lors du chargement des utilisateurs</td></tr>';
+            }
+        }
+
+        // Chargement des serveurs
+        async function loadServers() {
+            const serversDiv = document.getElementById('servers-list');
+            serversDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des serveurs...</div>';
+            
+            if (!isApiAvailable) {
+                serversDiv.innerHTML = `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-author">Serveur Demo</span>
+                            <span class="message-date">100 membres</span>
+                        </div>
+                        <div class="message-content">Serveur de démonstration</div>
+                    </div>
+                    <div class="error-message">Mode démonstration - Connectez votre API pour voir les vrais serveurs</div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('servers');
+                if (data && data.servers) {
+                    let serversHtml = '';
+                    data.servers.forEach(server => {
+                        const joinedAt = new Date(server.joined_at);
+                        serversHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span class="message-author">${server.guild_name}</span>
+                                    <span class="discord-badge">${server.member_count} membres</span>
+                                    <span class="message-date">Rejoint: ${joinedAt.toLocaleDateString()}</span>
+                                </div>
+                                <div class="message-content">
+                                    ID: ${server.guild_id} • 
+                                    ${server.channel_count || 0} salons • 
+                                    ${server.message_count || 0} messages
+                                </div>
+                            </div>
+                        `;
+                    });
+                    serversDiv.innerHTML = serversHtml || '<p>Aucun serveur trouvé</p>';
+                }
+            } catch (error) {
+                serversDiv.innerHTML = '<div class="error-message">Erreur lors du chargement des serveurs</div>';
+            }
+        }
+
+        // Chargement des salons
+        async function loadChannels() {
+            const channelsDiv = document.getElementById('channels-list');
+            channelsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des salons...</div>';
+            
+            if (!isApiAvailable) {
+                channelsDiv.innerHTML = `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="channel-mention">#général</span>
+                            <span class="message-author">Serveur Demo</span>
+                            <span class="message-date">Type: text</span>
+                        </div>
+                        <div class="message-content">42 messages dans ce salon</div>
+                    </div>
+                    <div class="error-message">Mode démonstration - Connectez votre API pour voir les vrais salons</div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('channels');
+                if (data && data.channels) {
+                    let channelsHtml = '';
+                    data.channels.forEach(channel => {
+                        const createdAt = new Date(channel.created_at);
+                        const channelIcon = channel.channel_type.includes('voice') ? '🔊' : 
+                                          channel.channel_type.includes('category') ? '📁' : '💬';
+                        
+                        channelsHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span>${channelIcon}</span>
+                                    <span class="channel-mention">#${channel.channel_name}</span>
+                                    <span class="message-author">${channel.guild_name}</span>
+                                    <span class="discord-badge">${channel.channel_type}</span>
+                                    <span class="message-date">${createdAt.toLocaleDateString()}</span>
+                                </div>
+                                <div class="message-content">
+                                    ${channel.message_count || 0} messages • 
+                                    Position: ${channel.position || 0}
+                                    ${channel.category_name ? ` • Catégorie: ${channel.category_name}` : ''}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    channelsDiv.innerHTML = channelsHtml || '<p>Aucun salon trouvé</p>';
+                }
+            } catch (error) {
+                channelsDiv.innerHTML = '<div class="error-message">Erreur lors du chargement des salons</div>';
+            }
+        }
+
+        // Chargement des réactions
+        async function loadReactions() {
+            const reactionsDiv = document.getElementById('reactions-list');
+            reactionsDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Chargement des réactions...</div>';
+            
+            if (!isApiAvailable) {
+                reactionsDiv.innerHTML = `
+                    <div class="message-item">
+                        <div class="message-header">
+                            <span class="message-author">Demo User</span>
+                            <span style="font-size: 20px; margin: 0 8px;">😀</span>
+                            <span class="message-date">${new Date().toLocaleString()}</span>
+                        </div>
+                        <div class="message-content">A réagi sur un message</div>
+                    </div>
+                    <div class="error-message">Mode démonstration - Connectez votre API pour voir les vraies réactions</div>
+                `;
+                return;
+            }
+            
+            try {
+                const data = await apiRequest('reactions');
+                if (data && data.reactions) {
+                    let reactionsHtml = '';
+                    
+                    // Afficher les stats d'emojis en premier
+                    if (data.emoji_stats && data.emoji_stats.length > 0) {
+                        reactionsHtml += '<div class="message-item"><div class="message-header"><strong>Top Emojis:</strong></div><div class="message-content">';
+                        data.emoji_stats.forEach(emoji => {
+                            reactionsHtml += `<span style="margin-right: 15px;">${emoji.emoji_name} (${emoji.count}x)</span>`;
+                        });
+                        reactionsHtml += '</div></div>';
+                    }
+                    
+                    // Afficher les réactions récentes
+                    data.reactions.forEach(reaction => {
+                        const date = new Date(reaction.created_at);
+                        reactionsHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span class="message-author">${reaction.display_name || reaction.username}</span>
+                                    <span style="font-size: 18px; margin: 0 8px;">${reaction.emoji_name}</span>
+                                    <span class="channel-mention">#${reaction.channel_name || 'inconnu'}</span>
+                                    <span class="message-date">${date.toLocaleString()}</span>
+                                </div>
+                                <div class="message-content">${reaction.message_content || 'Message supprimé'}</div>
+                            </div>
+                        `;
+                    });
+                    reactionsDiv.innerHTML = reactionsHtml || '<p>Aucune réaction trouvée</p>';
+                }
+            } catch (error) {
+                reactionsDiv.innerHTML = '<div class="error-message">Erreur lors du chargement des réactions</div>';
+            }
+        }
+
+        // Application des filtres pour les messages
+        async function applyMessageFilters() {
+            console.log('Application des filtres...');
+            
+            if (!isApiAvailable) {
+                showError('Filtres non disponibles en mode démonstration');
+                return;
+            }
+            
+            const messagesDiv = document.getElementById('messages-list');
+            messagesDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Filtrage en cours...</div>';
+            
+            const filters = {
+                guild_id: document.getElementById('message-server-filter')?.value || null,
+                channel_id: document.getElementById('message-channel-filter')?.value || null,
+                user_id: document.getElementById('message-user-filter')?.value || null,
+                limit: 50
+            };
+            
+            try {
+                const data = await apiRequest('messages', filters);
+                if (data && data.messages) {
+                    let messagesHtml = '';
+                    data.messages.forEach(msg => {
+                        const date = new Date(msg.created_at);
+                        messagesHtml += `
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <span class="message-author">${msg.display_name || msg.username}</span>
+                                    <span class="channel-mention">#${msg.channel_name || 'inconnu'}</span>
+                                    <span class="message-date">${date.toLocaleString()}</span>
+                                </div>
+                                <div class="message-content">${msg.content || '<em>Message vide</em>'}</div>
+                            </div>
+                        `;
+                    });
+                    messagesDiv.innerHTML = messagesHtml || '<p>Aucun message trouvé avec ces filtres</p>';
+                }
+            } catch (error) {
+                messagesDiv.innerHTML = '<div class="error-message">Erreur lors du filtrage</div>';
+            }
+        }
+
+        // Test de l'API
+        async function testApiConnection() {
+            console.log('Test de connexion API...');
+            
+            try {
+                const response = await fetch('api.php?action=stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (!data.error) {
+                        isApiAvailable = true;
+                        console.log('✅ API connectée');
+                        return;
+                    }
+                }
+                throw new Error('API non fonctionnelle');
+            } catch (error) {
+                console.log('❌ API non disponible - Mode démonstration activé');
+                isApiAvailable = false;
+                showError('API non disponible - Mode démonstration. Créez le fichier api.php pour accéder aux vraies données.');
+            }
+        }
+
+        // Chargement des options de filtres
+        async function loadFilterOptions() {
+            if (!isApiAvailable) return;
+            
+            try {
+                const data = await apiRequest('filter_options');
+                if (!data) return;
+
+                // Serveurs
+                const serverSelect = document.getElementById('message-server-filter');
+                if (serverSelect && data.servers) {
+                    serverSelect.innerHTML = '<option value="">Tous les serveurs</option>';
+                    data.servers.forEach(server => {
+                        serverSelect.innerHTML += `<option value="${server.guild_id}">${server.guild_name}</option>`;
+                    });
+                }
+
+                // Salons
+                const channelSelect = document.getElementById('message-channel-filter');
+                if (channelSelect && data.channels) {
+                    channelSelect.innerHTML = '<option value="">Tous les salons</option>';
+                    data.channels.forEach(channel => {
+                        channelSelect.innerHTML += `<option value="${channel.channel_id}">#${channel.channel_name} (${channel.guild_name})</option>`;
+                    });
+                }
+
+                // Utilisateurs
+                const userSelect = document.getElementById('message-user-filter');
+                if (userSelect && data.users) {
+                    userSelect.innerHTML = '<option value="">Tous les utilisateurs</option>';
+                    data.users.forEach(user => {
+                        userSelect.innerHTML += `<option value="${user.user_id}">${user.display_name || user.username} (${user.message_count} msg)</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur chargement filtres:', error);
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Discord Dashboard initialisé');
+            
+            // Configuration des événements de navigation
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.getAttribute('data-section');
+                    showSection(section);
+                });
+            });
+            
+            // Test de connexion API et chargement initial
+            testApiConnection().then(() => {
+                loadOverviewData();
+                if (isApiAvailable) {
+                    loadFilterOptions();
+                }
+            });
+            
+            // Actualisation automatique toutes les 30 secondes
+            setInterval(() => {
+                const activeSection = document.querySelector('.section.active');
+                if (activeSection && activeSection.id === 'overview-section') {
+                    loadOverviewData();
+                }
+            }, 30000);
+        });
+
+        // Fonctions globales pour les boutons
+        window.applyMessageFilters = applyMessageFilters;
+        
+        console.log('📋 Dashboard prêt! Sections disponibles:', {
+            overview: 'Vue d\'ensemble avec stats',
+            messages: 'Liste des messages avec filtres',
+            users: 'Liste des utilisateurs',
+            servers: 'Liste des serveurs',
+            channels: 'Liste des salons',
+            reactions: 'Liste des réactions'
+        });
+    </script>
+</body>
+</html>
